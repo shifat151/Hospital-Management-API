@@ -1,5 +1,8 @@
 from django.db import models
+from django.db.models.fields import DateField
 from account.models import User
+
+
 
 # Create your models here.
 
@@ -32,5 +35,10 @@ class doctor(models.Model):
         return self.user.id
     def __str__(self):
         return "{} ({})".format(self.user.first_name,self.department)
+
+
+
+
+
 
     
