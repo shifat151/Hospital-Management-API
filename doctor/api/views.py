@@ -50,19 +50,20 @@ class CustomAuthToken(ObtainAuthToken):
 
 
 
-# class doctorProfileView(APIView):
+class doctorProfileView(APIView):
 
 
-#     def get(self, request, format=None):
-#         try:
-#             user=request.user
-#         except user.DoesNotExist:
-#             return Response(status=status.HTTP_404_NOT_FOUND)
-#         profile=doctor.objects.filter(user=user)
-#         profileSerializer=doctorProfileSerializer(profile)
-#         return Response({
-#                 'profile':profileSerializer.data
-#         })
+    def get(self, request, format=None):
+        try:
+            user=request.user
+        except user.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        profile=doctor.objects.filter(user=user).get()
+        print(profile.id)
+        profileSerializer=doctorProfileSerializer(profile)
+        return Response({
+                'profile':profileSerializer.data
+        })
 
     # def put(self, request, format=None):
 
