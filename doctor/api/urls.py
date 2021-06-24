@@ -1,9 +1,11 @@
-from .views import registrationView
+from .views import registrationView, CustomAuthToken
 from django.urls import path
-# from rest_framework.authtoken.views import obtain_auth_token
+
 
 app_name='doctor'
 urlpatterns = [
     path('registration/', registrationView.as_view(), name='api_doctor_registration'),
-    # path('doctor-login/', obtain_auth_token, name='login'),
+    path('login/', CustomAuthToken.as_view(), name='api_doctor_login'),
+
+
 ]
