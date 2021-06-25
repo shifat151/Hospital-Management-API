@@ -78,7 +78,7 @@ class doctorProfileSerializer(serializers.Serializer):
             raise serializers.ValidationError('Please Enter a valid mobile number!')
         return mobile
     
-    def create(self, validated_data, ):
+    def create(self, validated_data):
         new_doctor= doctor.objects.create(
             department=validated_data['department'],
             address=validated_data['address'],
@@ -88,6 +88,14 @@ class doctorProfileSerializer(serializers.Serializer):
         )
         new_doctor.save()
         return new_doctor
+    
+    def update(self, instance, validated_data):
+        instance.department=validated_data.get('department', instance.department)
+        instance.address=validated_data.get('address', instance.address)
+        instance.mobile=validated_data.get('mobile', instance.mobile)
+        instance.save()
+        return instance
+
 
 
 
