@@ -1,15 +1,11 @@
-
-
 from rest_framework import serializers
 from account.models import User
-from doctor.models import doctor
+from patient.models import patient
 from django.contrib.auth.models import Group
 
 
 
-
-
-class doctorRegistrationSerializer(serializers.Serializer):
+class patientRegistrationSerializer(serializers.Serializer):
 
     username=serializers.CharField(label='Username:')
     first_name=serializers.CharField(label='First name:')
@@ -51,24 +47,13 @@ class doctorRegistrationSerializer(serializers.Serializer):
             )
         user.set_password(validated_data['password'])
         user.save()
-        group_doctor, created = Group.objects.get_or_create(name='doctor')
-        group_doctor.user_set.add(user)
+        group_patient, created = Group.objects.get_or_create(name='patient')
+        group_patient.user_set.add(user)
         return user
 
-class doctorProfileSerializer(serializers.Serializer):
-    Cardiologist='CL'
-    Dermatologists='DL'
-    Emergency_Medicine_Specialists='EMC'
-    Immunologists='IL'
-    Anesthesiologists='AL'
-    Colon_and_Rectal_Surgeons='CRS'
-    department=serializers.ChoiceField(label='Department:', choices=[(Cardiologist,'Cardiologist'),
-        (Dermatologists,'Dermatologists'),
-        (Emergency_Medicine_Specialists,'Emergency Medicine Specialists'),
-        (Immunologists,'Immunologists'),
-        (Anesthesiologists,'Anesthesiologists'),
-        (Colon_and_Rectal_Surgeons,'Colon and Rectal Surgeons')
-    ])
+
+class patientProfileSerializer(serializers.Serializer):
+    age=serializers.DecimalField(label="Age:", max_digits=4,decimal_places=1)
     address= serializers.CharField(label="Address:")
     mobile=serializers.CharField(label="Mobile Number:", max_length=20)
 
@@ -79,22 +64,18 @@ class doctorProfileSerializer(serializers.Serializer):
         return mobile
     
     def create(self, validated_data):
-        new_doctor= doctor.objects.create(
-            department=validated_data['department'],
+        new_patient= patient.objects.create(
+            age=validated_data['age'],
             address=validated_data['address'],
             mobile=validated_data['mobile'],
             status=False,
             user=validated_data['user']
         )
-        return new_doctor
+        return new_patient
     
     def update(self, instance, validated_data):
-        instance.department=validated_data.get('department', instance.department)
+        instance.age=validated_data.get('age', instance.age)
         instance.address=validated_data.get('address', instance.address)
         instance.mobile=validated_data.get('mobile', instance.mobile)
         instance.save()
         return instance
-
-
-
-

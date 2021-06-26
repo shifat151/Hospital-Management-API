@@ -6,7 +6,7 @@ from doctor.models import doctor
 
 class patient(models.Model):
 
-    age= models.PositiveIntegerField()
+    age= models.DecimalField(max_digits=4,decimal_places=1)
     address= models.TextField()
     mobile=models.CharField(max_length=20)
     status=models.BooleanField(default=False)
