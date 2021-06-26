@@ -7,10 +7,16 @@ from rest_framework import serializers, status
 from patient.models import patient
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import BasePermission, IsAuthenticated
 
 
-def is_patient(user):
-    return user.groups.filter(name='patient').exists()
+# def is_patient(user):
+#     return user.groups.filter(name='patient').exists()
+
+class IsPatient(BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.groups.filter(name='patient').exists())
+        
 
 class registrationView(APIView):
     permission_classes = []
@@ -58,6 +64,8 @@ class CustomAuthToken(ObtainAuthToken):
 
 
 class patientProfileView(APIView):
+    permission_classes = [IsPatient]
+
 
     def get(self, request, format=None):
         try:
