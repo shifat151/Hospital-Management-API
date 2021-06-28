@@ -10,8 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import BasePermission, IsAuthenticated
 
 
-# def is_patient(user):
-#     return user.groups.filter(name='patient').exists()
+
 
 class IsPatient(BasePermission):
     def has_permission(self, request, view):
@@ -68,10 +67,7 @@ class patientProfileView(APIView):
 
 
     def get(self, request, format=None):
-        try:
-            user = request.user
-        except user.DoesNotExist:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
         profile = patient.objects.filter(user=user).get()
         userSerializer=patientRegistrationSerializer(user)
         profileSerializer = patientProfileSerializer(profile)
@@ -82,10 +78,7 @@ class patientProfileView(APIView):
         }, status=status.HTTP_200_OK)
 
     def put(self, request, format=None):
-        try:
-            user = request.user
-        except user.DoesNotExist:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
         profile = patient.objects.filter(user=user).get()
         profileSerializer = patientProfileSerializer(
             instance=profile, data=request.data.get('profile_data'), partial=True)

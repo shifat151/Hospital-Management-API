@@ -7,11 +7,15 @@ from rest_framework import serializers, status
 from doctor.models import doctor
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import BasePermission, IsAuthenticated
+
+class IsDoctor(BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.groups.filter(name='doctor').exists())
 
 
 class registrationView(APIView):
     permission_classes = []
-
     def post(self, request, format=None):
         registrationSerializer = doctorRegistrationSerializer(
             data=request.data.get('user_data'))
@@ -56,11 +60,10 @@ class CustomAuthToken(ObtainAuthToken):
 
 class doctorProfileView(APIView):
 
+    permission_classes=[IsDoctor]
+
     def get(self, request, format=None):
-        try:
-            user = request.user
-        except user.DoesNotExist:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
         profile = doctor.objects.filter(user=user).get()
         userSerializer=doctorRegistrationSerializer(user)
         profileSerializer = doctorProfileSerializer(profile)
@@ -71,10 +74,7 @@ class doctorProfileView(APIView):
         }, status=status.HTTP_200_OK)
 
     def put(self, request, format=None):
-        try:
-            user = request.user
-        except user.DoesNotExist:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
         profile = doctor.objects.filter(user=user).get()
         profileSerializer = doctorProfileSerializer(
             instance=profile, data=request.data.get('profile_data'), partial=True)
