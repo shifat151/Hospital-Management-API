@@ -1,13 +1,18 @@
 from rest_framework.views import APIView
-from .serializers import patientRegistrationSerializer, patientProfileSerializer
+from .serializers import (patientRegistrationSerializer,
+ patientProfileSerializer,
+  patientHistorySerializer)
+
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from patient.models import patient
+from patient.models import patient, patient_history
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import BasePermission, IsAuthenticated
+
+from patient.models import patient
 
 
 
@@ -90,3 +95,15 @@ class patientProfileView(APIView):
         return Response({
                 'profile_data':profileSerializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
+
+class patientHistoryView(APIView):
+
+    def get(self, request, format=None):
+        user = request.user
+        print(user.username)
+        user_patient = patient.objects.filter(user=user).get()
+        history = patient_history.objects.filter(patient=user_patient)
+        print('new history boys {}'.format(history))
+        historySerializer=patientHistorySerializer(history, many=True)
+        return Response(historySerializer.data, status=status.HTTP_200_OK)
+

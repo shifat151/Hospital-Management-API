@@ -39,7 +39,7 @@ class patient_history(models.Model):
     admit_date=models.DateField(verbose_name="Admit Date",auto_now=False, auto_now_add=True)
     symptomps=models.TextField()
     department=models.CharField(max_length=3, choices=department_choices, default=Cardiologist)
-    release_date=models.DateField(verbose_name="Release Date",auto_now=False, auto_now_add=False, blank=True)
+    release_date=models.DateField(verbose_name="Release Date",auto_now=False, auto_now_add=False, null=True, blank=True)
     patient=models.ForeignKey(patient, on_delete=models.CASCADE)
     assigned_doctor=models.OneToOneField(doctor, on_delete=models.CASCADE)
     

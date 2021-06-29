@@ -1,7 +1,10 @@
+from django.db.models import fields
+from django.db.models.query import QuerySet
 from rest_framework import serializers
 from account.models import User
-from patient.models import patient
+from patient.models import patient, patient_history
 from django.contrib.auth.models import Group
+from doctor.models import doctor
 
 
 
@@ -79,3 +82,34 @@ class patientProfileSerializer(serializers.Serializer):
         instance.mobile=validated_data.get('mobile', instance.mobile)
         instance.save()
         return instance
+
+
+class patientHistorySerializer(serializers.Serializer):
+    Cardiologist='CL'
+    Dermatologists='DL'
+    Emergency_Medicine_Specialists='EMC'
+    Immunologists='IL'
+    Anesthesiologists='AL'
+    Colon_and_Rectal_Surgeons='CRS'
+    admit_date=serializers.DateField(label="Admit Date:", read_only=True)
+    symptomps=serializers.CharField(label="Symptomps:", style={'base_template': 'textarea.html'})
+    department=serializers.ChoiceField(label='Department: ', choices=[(Cardiologist,'Cardiologist'),
+        (Dermatologists,'Dermatologists'),
+        (Emergency_Medicine_Specialists,'Emergency Medicine Specialists'),
+        (Immunologists,'Immunologists'),
+        (Anesthesiologists,'Anesthesiologists'),
+        (Colon_and_Rectal_Surgeons,'Colon and Rectal Surgeons')
+    ])
+    release_date=serializers.DateField(label="Release Date:", required=False)
+    assigned_doctor=serializers.StringRelatedField(label='Assigned Doctor:')
+
+# class patientHistorySerializer(serializers.ModelSerializer):
+#     assigned_doctor=serializers.StringRelatedField()
+
+#     class Meta:
+#         model= patient_history
+#         fields=['admit_date', 'symptomps', 'department', 'release_date', 'assigned_doctor']
+    
+
+
+    
