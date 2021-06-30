@@ -48,7 +48,8 @@ class Appointment(models.Model):
     appontment_date=models.DateField(verbose_name="Appointment date",auto_now=False, auto_now_add=False)
     appointment_time=models.TimeField(verbose_name="Appointement time", auto_now=False, auto_now_add=False)
     status=models.BooleanField(default=False)
-    patient=models.ForeignKey(patient_history, on_delete=models.CASCADE)
+    #related_name fix reverse relationship field name with patient_history model
+    patient=models.ForeignKey(patient_history,related_name='appointments', on_delete=models.CASCADE)
     doctor=models.OneToOneField(doctor, on_delete=models.CASCADE)
 
 
@@ -59,6 +60,10 @@ class patient_discharge(models.Model):
     doctor_fee=models.PositiveIntegerField(verbose_name="Doctor Fee", null=False)
     Other_charge=models.PositiveIntegerField(verbose_name="Other charges", null=False)
     patient_details=models.OneToOneField(patient_history, on_delete=models.CASCADE)
+
+    @property
+    def total_cost(self):
+        return self.room_charge+self.medicine_cost+self.doctor_fee+self.Other_charge
 
 
 

@@ -84,6 +84,12 @@ class patientProfileSerializer(serializers.Serializer):
         return instance
 
 
+class appointmentSerializer(serializers.Serializer):
+    appontment_date=serializers.DateField(label="Appointment Date:",)
+    appointment_time=serializers.TimeField(label="Appointment Time:")
+    doctor=serializers.StringRelatedField(label='Doctor:')
+
+
 class patientHistorySerializer(serializers.Serializer):
     Cardiologist='CL'
     Dermatologists='DL'
@@ -100,15 +106,11 @@ class patientHistorySerializer(serializers.Serializer):
         (Anesthesiologists,'Anesthesiologists'),
         (Colon_and_Rectal_Surgeons,'Colon and Rectal Surgeons')
     ])
+    #required=False; if this field is not required to be present during deserialization.
     release_date=serializers.DateField(label="Release Date:", required=False)
     assigned_doctor=serializers.StringRelatedField(label='Assigned Doctor:')
+    appointments=appointmentSerializer(many=True)
 
-# class patientHistorySerializer(serializers.ModelSerializer):
-#     assigned_doctor=serializers.StringRelatedField()
-
-#     class Meta:
-#         model= patient_history
-#         fields=['admit_date', 'symptomps', 'department', 'release_date', 'assigned_doctor']
     
 
 
