@@ -84,9 +84,19 @@ class patientProfileSerializer(serializers.Serializer):
         return instance
 
 
+class patientCostSerializer(serializers.Serializer):
+    room_charge=serializers.IntegerField(label="Room Charge:")
+    medicine_cost=serializers.IntegerField(label="Medicine Cost:")
+    doctor_fee=serializers.IntegerField(label="Doctor Fee:")
+    other_charge=serializers.IntegerField(label="Other Charge:")
+    total_cost=serializers.CharField(label="Total Cost:")
+
+
+
 class appointmentSerializer(serializers.Serializer):
     appontment_date=serializers.DateField(label="Appointment Date:",)
     appointment_time=serializers.TimeField(label="Appointment Time:")
+    status=serializers.BooleanField(label="Appointment Status:")
     doctor=serializers.StringRelatedField(label='Doctor:')
 
 
@@ -110,6 +120,7 @@ class patientHistorySerializer(serializers.Serializer):
     release_date=serializers.DateField(label="Release Date:", required=False)
     assigned_doctor=serializers.StringRelatedField(label='Assigned Doctor:')
     appointments=appointmentSerializer(many=True)
+    costs=patientCostSerializer()
 
     
 

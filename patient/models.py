@@ -54,16 +54,16 @@ class Appointment(models.Model):
 
 
 
-class patient_discharge(models.Model):
+class patient_cost(models.Model):
     room_charge=models.PositiveIntegerField(verbose_name="Room charge", null=False)
     medicine_cost=models.PositiveIntegerField(verbose_name="Medicine cost", null=False)
     doctor_fee=models.PositiveIntegerField(verbose_name="Doctor Fee", null=False)
-    Other_charge=models.PositiveIntegerField(verbose_name="Other charges", null=False)
-    patient_details=models.OneToOneField(patient_history, on_delete=models.CASCADE)
+    other_charge=models.PositiveIntegerField(verbose_name="Other charges", null=False)
+    patient_details=models.OneToOneField(patient_history, related_name='costs', on_delete=models.CASCADE)
 
     @property
     def total_cost(self):
-        return self.room_charge+self.medicine_cost+self.doctor_fee+self.Other_charge
+        return "{} tk" .format(self.room_charge+self.medicine_cost+self.doctor_fee+self.other_charge)
 
 
 

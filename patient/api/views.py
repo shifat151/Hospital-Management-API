@@ -100,10 +100,8 @@ class patientHistoryView(APIView):
 
     def get(self, request, format=None):
         user = request.user
-        print(user.username)
         user_patient = patient.objects.filter(user=user).get()
         history = patient_history.objects.filter(patient=user_patient)
-        print('new history boys {}'.format(history))
         historySerializer=patientHistorySerializer(history, many=True)
         return Response(historySerializer.data, status=status.HTTP_200_OK)
 
