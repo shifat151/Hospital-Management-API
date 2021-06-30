@@ -42,6 +42,9 @@ class patient_history(models.Model):
     release_date=models.DateField(verbose_name="Release Date",auto_now=False, auto_now_add=False, null=True, blank=True)
     patient=models.ForeignKey(patient, on_delete=models.CASCADE)
     assigned_doctor=models.OneToOneField(doctor, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.patient.get_name
     
 
 class Appointment(models.Model):
@@ -49,8 +52,8 @@ class Appointment(models.Model):
     appointment_time=models.TimeField(verbose_name="Appointement time", auto_now=False, auto_now_add=False)
     status=models.BooleanField(default=False)
     #related_name fix reverse relationship field name with patient_history model
-    patient=models.ForeignKey(patient_history,related_name='appointments', on_delete=models.CASCADE)
-    doctor=models.OneToOneField(doctor, on_delete=models.CASCADE)
+    patient=models.ForeignKey(patient_history,related_name='patient_appointments', on_delete=models.CASCADE)
+    doctor=models.ForeignKey(doctor,related_name='doctor_appointments', on_delete=models.CASCADE)
 
 
 

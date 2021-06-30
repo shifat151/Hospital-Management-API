@@ -93,7 +93,7 @@ class patientCostSerializer(serializers.Serializer):
 
 
 
-class appointmentSerializer(serializers.Serializer):
+class patientAppointmentSerializer(serializers.Serializer):
     appontment_date=serializers.DateField(label="Appointment Date:",)
     appointment_time=serializers.TimeField(label="Appointment Time:")
     status=serializers.BooleanField(label="Appointment Status:")
@@ -119,7 +119,7 @@ class patientHistorySerializer(serializers.Serializer):
     #required=False; if this field is not required to be present during deserialization.
     release_date=serializers.DateField(label="Release Date:", required=False)
     assigned_doctor=serializers.StringRelatedField(label='Assigned Doctor:')
-    appointments=appointmentSerializer(many=True)
+    patient_appointments=patientAppointmentSerializer(label="Appointments",many=True)
     costs=patientCostSerializer()
 
     

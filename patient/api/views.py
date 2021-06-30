@@ -97,6 +97,7 @@ class patientProfileView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 class patientHistoryView(APIView):
+    permission_classes = [IsPatient]
 
     def get(self, request, format=None):
         user = request.user

@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from .serializers import doctorRegistrationSerializer, doctorProfileSerializer
+from .serializers import doctorRegistrationSerializer, doctorProfileSerializer, doctorAppointmentSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from doctor.models import doctor
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import BasePermission, IsAuthenticated
+from patient.models import Appointment
 
 class IsDoctor(BasePermission):
     def has_permission(self, request, view):
@@ -86,3 +87,14 @@ class doctorProfileView(APIView):
         return Response({
                 'profile_data':profileSerializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
+
+class doctorAppointmentView(APIView):
+    permission_classes = [IsDoctor]
+
+    def get(self, request, format=None):
+        user = request.user
+        user_doctor = doctor.objects.filter(user=user).get()
+        appointments=Appointment.objects.filter(doctor=user_doctor, status=True)
+        print(appointments)
+        appointmentSerializer=doctorAppointmentSerializer(appointments, many=True)
+        return Response(appointmentSerializer.data, status=status.HTTP_200_OK)

@@ -96,5 +96,11 @@ class doctorProfileSerializer(serializers.Serializer):
         return instance
 
 
+class doctorAppointmentSerializer(serializers.Serializer):
+    appontment_date=serializers.DateField(label="Appointment Date:",)
+    appointment_time=serializers.TimeField(label="Appointment Time:")
+    patient=serializers.StringRelatedField(label='patient:')
+
+
 
 
