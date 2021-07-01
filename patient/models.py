@@ -44,7 +44,7 @@ class patient_history(models.Model):
     assigned_doctor=models.OneToOneField(doctor, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.patient.get_name
+        return self.patient.get_name+'-'+str(self.admit_date)
     
 
 class Appointment(models.Model):
@@ -54,6 +54,9 @@ class Appointment(models.Model):
     #related_name fix reverse relationship field name with patient_history model
     patient=models.ForeignKey(patient_history,related_name='patient_appointments', on_delete=models.CASCADE)
     doctor=models.ForeignKey(doctor,related_name='doctor_appointments', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.patient.patient.get_name+'-'+self.doctor.get_name
 
 
 
@@ -67,6 +70,12 @@ class patient_cost(models.Model):
     @property
     def total_cost(self):
         return "{} tk" .format(self.room_charge+self.medicine_cost+self.doctor_fee+self.other_charge)
+    
+
+    def __str__(self):
+        return self.patient_details.patient.get_name+'-'+str(self.patient_details.admit_date)
+    
+
 
 
 
