@@ -10,7 +10,7 @@ from rest_framework import serializers, status
 from patient.models import patient, patient_history
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import BasePermission
 
 from patient.models import patient
 

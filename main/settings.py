@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'doctor.apps.DoctorConfig',
     'patient.apps.PatientConfig',
+    'hospitalAdmin.apps.HospitaladminConfig',
+
 
     #rest_framework
     'rest_framework',
