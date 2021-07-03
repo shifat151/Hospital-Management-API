@@ -1,5 +1,4 @@
-
-
+from patient.models import Appointment
 from rest_framework import serializers
 from account.models import User
 from doctor.models import doctor
@@ -96,10 +95,40 @@ class doctorProfileSerializer(serializers.Serializer):
         return instance
 
 
+
+class patientHistorySerializerDoctorView(serializers.Serializer):
+    Cardiologist='CL'
+    Dermatologists='DL'
+    Emergency_Medicine_Specialists='EMC'
+    Immunologists='IL'
+    Anesthesiologists='AL'
+    Colon_and_Rectal_Surgeons='CRS'
+    admit_date=serializers.DateField(label="Admit Date:", read_only=True)
+    symptomps=serializers.CharField(label="Symptomps:", style={'base_template': 'textarea.html'})
+    department=serializers.CharField(label='Department: ')
+    #required=False; if this field is not required to be present during deserialization.
+    release_date=serializers.DateField(label="Release Date:", required=False)
+    assigned_doctor=serializers.StringRelatedField(label='Assigned Doctor:')
+    
+
+
 class doctorAppointmentSerializer(serializers.Serializer):
+    patient_name=serializers.SerializerMethodField('related_patient_name')
+    patient_age=serializers.SerializerMethodField('related_patient_age')
     appontment_date=serializers.DateField(label="Appointment Date:",)
     appointment_time=serializers.TimeField(label="Appointment Time:")
-    patient=serializers.StringRelatedField(label='patient:')
+    patient_history=patientHistorySerializerDoctorView(label='patient History:')
+    
+
+    def related_patient_name(self, obj):
+        return obj.patient_history.patient.get_name
+    
+    def related_patient_age(self, obj):
+        return obj.patient_history.patient.age
+
+
+
+
 
 
 
