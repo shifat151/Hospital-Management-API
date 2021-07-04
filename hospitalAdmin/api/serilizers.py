@@ -7,11 +7,6 @@ from doctor.models import doctor
 from django.contrib.auth.models import Group
 
 
-class doctorAccountSerializerAdmin(serializers.Serializer):
-    username=serializers.CharField(label='Username:', read_only=True)
-    first_name=serializers.CharField(label='First name:')
-    last_name=serializers.CharField(label='Last name:', required=False)
-
 
 class doctorProfileSerializerAdmin(serializers.Serializer):
     Cardiologist='CL'
@@ -20,7 +15,6 @@ class doctorProfileSerializerAdmin(serializers.Serializer):
     Immunologists='IL'
     Anesthesiologists='AL'
     Colon_and_Rectal_Surgeons='CRS'
-    id=serializers.IntegerField(read_only=True)
     department=serializers.ChoiceField(label='Department:', choices=[(Cardiologist,'Cardiologist'),
         (Dermatologists,'Dermatologists'),
         (Emergency_Medicine_Specialists,'Emergency Medicine Specialists'),
@@ -30,7 +24,6 @@ class doctorProfileSerializerAdmin(serializers.Serializer):
     ])
     address= serializers.CharField(label="Address:")
     mobile=serializers.CharField(label="Mobile Number:", max_length=20)
-    user=doctorAccountSerializerAdmin()
 
 
     def validate_mobile(self, mobile):
@@ -39,21 +32,33 @@ class doctorProfileSerializerAdmin(serializers.Serializer):
         return mobile
     
     
+
+
+class doctorAccountSerializerAdmin(serializers.Serializer):
+    id=serializers.UUIDField(read_only=True)
+    username=serializers.CharField(label='Username:', read_only=True)
+    first_name=serializers.CharField(label='First name:')
+    last_name=serializers.CharField(label='Last name:', required=False)
+    doctor=doctorProfileSerializerAdmin(label='User')
+
+
     def update(self, instance, validated_data):
         try:
-            user_data=validated_data.pop('user')
+            doctor_profile=validated_data.pop('doctor')
         except:
-            raise serializers.ValidationError('Please enter data related to user')
+            raise serializers.ValidationError("Please enter data related to doctor's profile")
 
-        user=instance.user
+        profile_data=instance.doctor
 
-        instance.department=validated_data.get('department', instance.department)
-        instance.address=validated_data.get('address', instance.address)
-        instance.mobile=validated_data.get('mobile', instance.mobile)
+        instance.first_name=validated_data.get('department', instance.first_name)
+        instance.last_name=validated_data.get('address', instance.last_name)
         instance.save()
 
-        user.first_name=user_data.get('first_name', user.first_name)
-        user.last_name=user_data.get('last_name', user.last_name)
-        user.save
+        profile_data.department=doctor_profile.get('department', profile_data.department)
+        profile_data.address=doctor_profile.get('address', profile_data.address)
+        profile_data.mobile=doctor_profile.get('mobile', profile_data.mobile)
+        profile_data.save()
 
         return instance
+
+

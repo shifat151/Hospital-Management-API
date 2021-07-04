@@ -48,29 +48,29 @@ class doctorAccountViewAdmin(APIView):
 
     def get_object(self, pk):
         try:
-            return doctor.objects.get(pk=pk)
-        except doctor.DoesNotExist:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
             raise Http404
     
     def get(self, request,pk=None, format=None):
+        
         if pk:
             doctor_detail=self.get_object(pk)
-            serializer=doctorProfileSerializerAdmin(doctor_detail)
-            return Response({'doctor':serializer.data}, status=status.HTTP_200_OK)
-
-        all_doctor=doctor.objects.all()
-        serializer=doctorProfileSerializerAdmin(all_doctor, many=True)
+            serializer=doctorAccountSerializerAdmin(doctor_detail)
+            return Response({'doctors':serializer.data}, status=status.HTTP_200_OK)
+        all_doctor=User.objects.filter(groups=1)
+        serializer=doctorAccountSerializerAdmin(all_doctor, many=True)
         return Response({'doctors':serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
-        saved_doctor=self.get_object(pk)
-        serializer=doctorProfileSerializerAdmin(instance=saved_doctor,data=request.data.get('doctor'), partial=True)
+        saved_user=self.get_object(pk)
+        serializer=doctorAccountSerializerAdmin(instance=saved_user,data=request.data.get('doctors'), partial=True)
         print(request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'doctor':serializer.data}, status=status.HTTP_200_OK)
+            return Response({'doctors':serializer.data}, status=status.HTTP_200_OK)
         return Response({
-                'doctor':serializer.errors
+                'doctors':serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
