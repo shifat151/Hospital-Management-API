@@ -150,3 +150,8 @@ class appointmentmentViewAdmin(APIView):
         return Response({
             'appointments': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)    
+
+    def delete(self, request, pk):
+        saved_appointment= self.get_object(pk)
+        saved_appointment.delete()
+        return Response({"message": "Appointment with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
