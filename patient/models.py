@@ -2,6 +2,7 @@ from django.db import models
 from account.models import User
 from doctor.models import doctor
 
+
 # Create your models here.
 
 class patient(models.Model):
@@ -48,19 +49,19 @@ class patient_history(models.Model):
     
 
 class Appointment(models.Model):
-    appontment_date=models.DateField(verbose_name="Appointment date",auto_now=False, auto_now_add=False)
+    appointment_date=models.DateField(verbose_name="Appointment date",auto_now=False, auto_now_add=False)
     appointment_time=models.TimeField(verbose_name="Appointement time", auto_now=False, auto_now_add=False)
     status=models.BooleanField(default=False)
     #related_name fix reverse relationship field name with patient_history model
     patient_history=models.ForeignKey(patient_history,related_name='patient_appointments', on_delete=models.CASCADE)
-    doctor=models.ForeignKey(doctor,related_name='doctor_appointments', on_delete=models.CASCADE)
+    doctor=models.ForeignKey(doctor,related_name='doctor_appointments',null=True, on_delete=models.SET_NULL)
 
     @property
     def patient_name(self):
-        self.patient.patient.get_name
+        self.patient_history.patient.get_name
     
     def __str__(self):
-        return self.patient.patient.get_name+'-'+self.doctor.get_name
+        return self.patient_history.patient.get_name+'-'+self.doctor.get_name
 
 
 

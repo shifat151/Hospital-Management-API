@@ -2,27 +2,29 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from patient.models import patient, patient_history
+from patient.models import (patient,
+                            patient_history,
+                            Appointment)
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import BasePermission
 from django.contrib.auth.models import Group
 from patient.models import Appointment
 from account.models import User
-from . serilizers import (doctorAccountSerializerAdmin,
-    doctorRegistrationSerializerAdmin,
-    doctorRegistrationProfileSerializerAdmin)
+from . serializers import (doctorAccountSerializerAdmin,
+                           doctorRegistrationSerializerAdmin,
+                           doctorRegistrationProfileSerializerAdmin,
+                           appointmentSerializerAdmin)
 from doctor.models import doctor
 
 
-
-
-
+#custom Permission class for Admin
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.user.groups.filter(name='admin').exists())
 
 
+#Custom Auth token for Admin
 class CustomAuthToken(ObtainAuthToken):
 
     def post(self, request, *args, **kwargs):
@@ -31,7 +33,7 @@ class CustomAuthToken(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         account_approval = user.groups.filter(name='admin').exists()
-        if account_approval==False:
+        if account_approval == False:
             return Response(
                 {
                     'message': "You are not authorised to login as an admin"
@@ -41,14 +43,15 @@ class CustomAuthToken(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key
-        },status=status.HTTP_200_OK)
+        }, status=status.HTTP_200_OK)
+
 
 #Doctor Registration view for admin
 class docregistrationViewAdmin(APIView):
     permission_classes = [IsAdmin]
 
     def post(self, request, format=None):
-        registrationSerializer =  doctorRegistrationSerializerAdmin(
+        registrationSerializer = doctorRegistrationSerializerAdmin(
             data=request.data.get('user_data'))
         profileSerializer = doctorRegistrationProfileSerializerAdmin(
             data=request.data.get('profile_data'))
@@ -67,6 +70,7 @@ class docregistrationViewAdmin(APIView):
                 'profile_data': profileSerializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
+
 #Doctor profile view for admin
 class doctorAccountViewAdmin(APIView):
     permission_classes = [IsAdmin]
@@ -76,40 +80,73 @@ class doctorAccountViewAdmin(APIView):
             return User.objects.get(pk=pk)
         except User.DoesNotExist:
             raise Http404
-    
-    def get(self, request,pk=None, format=None):
-        
+
+    def get(self, request, pk=None, format=None):
+
         if pk:
-            doctor_detail=self.get_object(pk)
-            serializer=doctorAccountSerializerAdmin(doctor_detail)
-            return Response({'doctors':serializer.data}, status=status.HTTP_200_OK)
-        all_doctor=User.objects.filter(groups=1)
-        serializer=doctorAccountSerializerAdmin(all_doctor, many=True)
-        return Response({'doctors':serializer.data}, status=status.HTTP_200_OK)
+            doctor_detail = self.get_object(pk)
+            serializer = doctorAccountSerializerAdmin(doctor_detail)
+            return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
+        all_doctor = User.objects.filter(groups=1)
+        serializer = doctorAccountSerializerAdmin(all_doctor, many=True)
+        return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
-        saved_user=self.get_object(pk)
-        serializer=doctorAccountSerializerAdmin(instance=saved_user,data=request.data.get('doctors'), partial=True)
+        saved_user = self.get_object(pk)
+        serializer = doctorAccountSerializerAdmin(
+            instance=saved_user, data=request.data.get('doctors'), partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'doctors':serializer.data}, status=status.HTTP_200_OK)
+            return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
         return Response({
-                'doctors':serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+            'doctors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pk):
-        saved_user=self.get_object(pk)
+        saved_user = self.get_object(pk)
         saved_user.delete()
-        return Response({"message": "User with id `{}` has been deleted.".format(pk)},status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "User with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
 
 
+#Appointment view for Admin
+class appointmentmentViewAdmin(APIView):
+    permission_classes = [IsAdmin]
 
+    def get_object(self, pk):
+        try:
+            return Appointment.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
 
+    def get(self, request, pk=None, format=None):
 
+        if pk:
+            appointment_detail = self.get_object(pk)
+            serializer = appointmentSerializerAdmin(appointment_detail)
+            return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
+        all_appointment = Appointment.objects.all()
+        serializer = appointmentSerializerAdmin(all_appointment, many=True)
+        return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
 
+    def post(self, request, format=None):
+        serializer = appointmentSerializerAdmin(
+            data=request.data.get('appointments'))
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'appointments': serializer.data,
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            'appointments': serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-
-
-
+    def put(self, request, pk):
+        saved_appointment= self.get_object(pk)
+        serializer = appointmentSerializerAdmin(
+            instance=saved_appointment, data=request.data.get('appointments'), partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
+        return Response({
+            'appointments': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)    

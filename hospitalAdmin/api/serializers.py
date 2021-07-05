@@ -1,6 +1,6 @@
 
 from rest_framework.exceptions import ValidationError
-from patient.models import Appointment
+from patient.models import (Appointment,patient_history)
 from rest_framework import serializers
 from account.models import User
 from doctor.models import doctor
@@ -93,6 +93,7 @@ class doctorProfileSerializerAdmin(serializers.Serializer):
     Immunologists='IL'
     Anesthesiologists='AL'
     Colon_and_Rectal_Surgeons='CRS'
+    id=serializers.IntegerField(read_only=True)
     department=serializers.ChoiceField(label='Department:', choices=[(Cardiologist,'Cardiologist'),
         (Dermatologists,'Dermatologists'),
         (Emergency_Medicine_Specialists,'Emergency Medicine Specialists'),
@@ -140,3 +141,35 @@ class doctorAccountSerializerAdmin(serializers.Serializer):
         return instance
 
 
+class appointmentSerializerAdmin(serializers.Serializer):
+    id=serializers.IntegerField(read_only=True)
+    appointment_date = serializers.DateField(label='Appointment date')
+    appointment_time = serializers.TimeField(label='Appointement time')
+    status = serializers.BooleanField(required=False)
+    patient_history = serializers.PrimaryKeyRelatedField(queryset=patient_history.objects.all())
+    doctor = serializers.PrimaryKeyRelatedField(queryset=doctor.objects.all(), required=False)
+
+
+    def create(self, validated_data):
+        new_appointment= Appointment.objects.create(
+            appointment_date=validated_data['appointment_date'],
+            appointment_time=validated_data['appointment_time'],
+            status=True,
+            patient_history=validated_data['patient_history'],
+            doctor=validated_data['doctor']
+        )
+        return new_appointment
+    
+
+    def update(self, instance, validated_data):
+ 
+
+        instance.appointment_date=validated_data.get(' appointment_date', instance.appointment_date)
+        instance.appointment_time=validated_data.get('appointment_time', instance.appointment_time)
+        instance.status=validated_data.get('status', instance.status)
+        instance.patient_history=validated_data.get('patient_history', instance.patient_hitory)
+        instance.doctor=validated_data.get('doctor', instance.doctor)
+        instance.save()
+
+
+        return instance

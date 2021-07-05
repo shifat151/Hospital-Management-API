@@ -94,7 +94,7 @@ class patientCostSerializer(serializers.Serializer):
 
 
 class patientAppointmentSerializer(serializers.Serializer):
-    appontment_date=serializers.DateField(label="Appointment Date:",)
+    appointment_date=serializers.DateField(label="Appointment Date:",)
     appointment_time=serializers.TimeField(label="Appointment Time:")
     status=serializers.BooleanField(label="Appointment Status:")
     doctor=serializers.StringRelatedField(label='Doctor:')
