@@ -16,6 +16,7 @@ class doctorRegistrationSerializerAdmin(serializers.Serializer):
     )
     password2=serializers.CharField(label='Confirm password:',style={'input_type': 'password'},  write_only=True)
     
+    
 
     
     def validate_username(self, username):
@@ -45,6 +46,7 @@ class doctorRegistrationSerializerAdmin(serializers.Serializer):
                 username=validated_data['username'],
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name'],
+                status=True,
             )
         user.set_password(validated_data['password'])
         user.save()
@@ -80,7 +82,6 @@ class doctorRegistrationProfileSerializerAdmin(serializers.Serializer):
             department=validated_data['department'],
             address=validated_data['address'],
             mobile=validated_data['mobile'],
-            status=True,
             user=validated_data['user']
         )
         return new_doctor
@@ -111,6 +112,7 @@ class doctorProfileSerializerAdmin(serializers.Serializer):
         return mobile
     
     
+    
 
 
 class doctorAccountSerializerAdmin(serializers.Serializer):
@@ -118,6 +120,7 @@ class doctorAccountSerializerAdmin(serializers.Serializer):
     username=serializers.CharField(label='Username:', read_only=True)
     first_name=serializers.CharField(label='First name:')
     last_name=serializers.CharField(label='Last name:', required=False)
+    status=serializers.BooleanField(label='status')
     doctor=doctorProfileSerializerAdmin(label='User')
 
 
@@ -131,6 +134,7 @@ class doctorAccountSerializerAdmin(serializers.Serializer):
 
         instance.first_name=validated_data.get('department', instance.first_name)
         instance.last_name=validated_data.get('address', instance.last_name)
+        instance.status=validated_data.get('status', instance.status)
         instance.save()
 
         profile_data.department=doctor_profile.get('department', profile_data.department)

@@ -11,7 +11,7 @@ class DoctorAppointment(admin.TabularInline):
 # admin.site.register()
 
 class doctorAdmin(admin.ModelAdmin):
-    list_display=['get_name','department', 'address', 'mobile', 'status', 'user']
+    list_display=['get_name','department', 'address', 'mobile', 'user']
     inlines=[DoctorAppointment]
 
 

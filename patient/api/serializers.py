@@ -47,6 +47,7 @@ class patientRegistrationSerializer(serializers.Serializer):
                 username=validated_data['username'],
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name'],
+                status=False
             )
         user.set_password(validated_data['password'])
         user.save()
@@ -71,7 +72,6 @@ class patientProfileSerializer(serializers.Serializer):
             age=validated_data['age'],
             address=validated_data['address'],
             mobile=validated_data['mobile'],
-            status=False,
             user=validated_data['user']
         )
         return new_patient

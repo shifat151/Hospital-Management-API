@@ -47,6 +47,7 @@ class doctorRegistrationSerializer(serializers.Serializer):
                 username=validated_data['username'],
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name'],
+                status=False
             )
         user.set_password(validated_data['password'])
         user.save()
@@ -82,7 +83,6 @@ class doctorProfileSerializer(serializers.Serializer):
             department=validated_data['department'],
             address=validated_data['address'],
             mobile=validated_data['mobile'],
-            status=False,
             user=validated_data['user']
         )
         return new_doctor
@@ -115,7 +115,7 @@ class patientHistorySerializerDoctorView(serializers.Serializer):
 class doctorAppointmentSerializer(serializers.Serializer):
     patient_name=serializers.SerializerMethodField('related_patient_name')
     patient_age=serializers.SerializerMethodField('related_patient_age')
-    appontment_date=serializers.DateField(label="Appointment Date:",)
+    appointment_date=serializers.DateField(label="Appointment Date:",)
     appointment_time=serializers.TimeField(label="Appointment Time:")
     patient_history=patientHistorySerializerDoctorView(label='patient History:')
     

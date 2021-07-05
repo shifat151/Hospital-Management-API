@@ -26,7 +26,6 @@ class doctor(models.Model):
     department=models.CharField(max_length=3, choices=department_choices, default=Cardiologist)
     address= models.TextField()
     mobile=models.CharField(max_length=20)
-    status=models.BooleanField(default=False)
     user=models.OneToOneField(User,on_delete=models.CASCADE)
 
     @property

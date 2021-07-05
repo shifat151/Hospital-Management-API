@@ -45,8 +45,7 @@ class CustomAuthToken(ObtainAuthToken):
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        account_approval = doctor.objects.filter(user=user, status=False)
-        if account_approval:
+        if user.status==False:
             return Response(
                 {
                     'message': "Your account is not approved by admin yet!"

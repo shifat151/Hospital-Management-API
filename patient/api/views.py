@@ -53,8 +53,7 @@ class CustomAuthToken(ObtainAuthToken):
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        account_approval = patient.objects.filter(user=user, status=False)
-        if account_approval:
+        if user.status==False:
             return Response(
                 {
                     'message': "Your account is not approved by admin yet!"
@@ -95,6 +94,8 @@ class patientProfileView(APIView):
         return Response({
                 'profile_data':profileSerializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
+
+            
 
 class patientHistoryView(APIView):
     permission_classes = [IsPatient]

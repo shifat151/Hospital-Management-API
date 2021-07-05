@@ -18,14 +18,18 @@ from . serializers import (doctorAccountSerializerAdmin,
 from doctor.models import doctor
 
 
-#custom Permission class for Admin
+
 class IsAdmin(BasePermission):
+    """custom Permission class for Admin"""
+
     def has_permission(self, request, view):
         return bool(request.user and request.user.groups.filter(name='admin').exists())
 
 
 #Custom Auth token for Admin
 class CustomAuthToken(ObtainAuthToken):
+
+    """This class returns custom Authentication token only for admin"""
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
@@ -46,8 +50,12 @@ class CustomAuthToken(ObtainAuthToken):
         }, status=status.HTTP_200_OK)
 
 
-#Doctor Registration view for admin
+
 class docregistrationViewAdmin(APIView):
+
+    """API endpoint for creating doctors account- only accessible by Admin"""
+
+
     permission_classes = [IsAdmin]
 
     def post(self, request, format=None):
@@ -71,8 +79,13 @@ class docregistrationViewAdmin(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
-#Doctor profile view for admin
+
 class doctorAccountViewAdmin(APIView):
+
+    """API endpoint for getiing info of all/particular doctor,
+     update/delete doctor's info
+     - only accessible by Admin"""
+
     permission_classes = [IsAdmin]
 
     def get_object(self, pk):
@@ -87,7 +100,7 @@ class doctorAccountViewAdmin(APIView):
             doctor_detail = self.get_object(pk)
             serializer = doctorAccountSerializerAdmin(doctor_detail)
             return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
-        all_doctor = User.objects.filter(groups=1)
+        all_doctor = User.objects.filter(groups=1, status=True)
         serializer = doctorAccountSerializerAdmin(all_doctor, many=True)
         return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
 
@@ -108,8 +121,33 @@ class doctorAccountViewAdmin(APIView):
         return Response({"message": "User with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
 
 
-#Appointment view for Admin
+class approveDoctorViewAdmin(APIView):
+
+    permission_classes = [IsAdmin]
+
+    def get_object(self, pk):
+        try:
+            return doctor.objects.get(status=False)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk=None, format=None):
+
+        if pk:
+            doctor_detail = self.get_object(pk)
+            serializer = doctorAccountSerializerAdmin(doctor_detail)
+            return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
+        doctors = User.objects.filter(groups=1)
+        unaccepted_doctors=doctors.objects.filter(status=False)
+        serializer = doctorAccountSerializerAdmin(unaccepted_doctors, many=True)
+        return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
+
+
 class appointmentmentViewAdmin(APIView):
+
+    """API endpoint for getiing info of all/particular appointment,
+     update/delete appointment - only accessible by Admin"""
+
     permission_classes = [IsAdmin]
 
     def get_object(self, pk):
@@ -155,3 +193,6 @@ class appointmentmentViewAdmin(APIView):
         saved_appointment= self.get_object(pk)
         saved_appointment.delete()
         return Response({"message": "Appointment with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
+
+
+
