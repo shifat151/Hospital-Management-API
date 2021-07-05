@@ -122,12 +122,14 @@ class doctorAccountViewAdmin(APIView):
 
 
 class approveDoctorViewAdmin(APIView):
+    """API endpoint for getiing new doctor approval request, update approval  request.
+     - only accessible by Admin"""
 
     permission_classes = [IsAdmin]
 
     def get_object(self, pk):
         try:
-            return doctor.objects.get(status=False)
+            return User.objects.get(pk=pk)
         except User.DoesNotExist:
             raise Http404
 
@@ -137,10 +139,21 @@ class approveDoctorViewAdmin(APIView):
             doctor_detail = self.get_object(pk)
             serializer = doctorAccountSerializerAdmin(doctor_detail)
             return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
-        doctors = User.objects.filter(groups=1)
-        unaccepted_doctors=doctors.objects.filter(status=False)
-        serializer = doctorAccountSerializerAdmin(unaccepted_doctors, many=True)
+        all_doctor = User.objects.filter(groups=1, status=False)
+        serializer = doctorAccountSerializerAdmin(all_doctor, many=True)
         return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        saved_user = self.get_object(pk)
+        serializer = doctorAccountSerializerAdmin(
+            instance=saved_user, data=request.data.get('doctors'), partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'doctors': serializer.data}, status=status.HTTP_200_OK)
+        return Response({
+            'doctors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class appointmentmentViewAdmin(APIView):
