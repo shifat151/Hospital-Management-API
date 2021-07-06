@@ -1,6 +1,7 @@
 
 from rest_framework.exceptions import ValidationError
-from patient.models import (Appointment,patient_history)
+from patient.models import (Appointment,
+patient_history)
 from rest_framework import serializers
 from account.models import User
 from doctor.models import doctor
@@ -289,6 +290,59 @@ class patientAccountSerializerAdmin(serializers.Serializer):
         profile_data.address=patient_profile.get('address', profile_data.address)
         profile_data.mobile=patient_profile.get('mobile', profile_data.mobile)
         profile_data.save()
+
+        return instance
+
+class patientCostSerializer(serializers.Serializer):
+    room_charge=serializers.IntegerField(label="Room Charge:")
+    medicine_cost=serializers.IntegerField(label="Medicine Cost:")
+    doctor_fee=serializers.IntegerField(label="Doctor Fee:")
+    other_charge=serializers.IntegerField(label="Other Charge:")
+    total_cost=serializers.CharField(label="Total Cost:")
+
+class patientHistorySerializerAdmin(serializers.Serializer):
+    Cardiologist='CL'
+    Dermatologists='DL'
+    Emergency_Medicine_Specialists='EMC'
+    Immunologists='IL'
+    Anesthesiologists='AL'
+    Colon_and_Rectal_Surgeons='CRS'
+    id=serializers.IntegerField(read_only=True)
+    admit_date=serializers.DateField(label="Admit Date:", read_only=True)
+    symptomps=serializers.CharField(label="Symptomps:", style={'base_template': 'textarea.html'})
+    department=serializers.ChoiceField(label='Department: ', choices=[(Cardiologist,'Cardiologist'),
+        (Dermatologists,'Dermatologists'),
+        (Emergency_Medicine_Specialists,'Emergency Medicine Specialists'),
+        (Immunologists,'Immunologists'),
+        (Anesthesiologists,'Anesthesiologists'),
+        (Colon_and_Rectal_Surgeons,'Colon and Rectal Surgeons')
+    ])
+    #required=False; if this field is not required to be present during deserialization.
+    release_date=serializers.DateField(label="Release Date:", required=False)
+    assigned_doctor=serializers.PrimaryKeyRelatedField(queryset=doctor.objects.all())
+    costs=patientCostSerializer(required=False)
+
+    def update(self, instance, validated_data):
+        try:
+            updpated_cost=validated_data.pop('costs')
+        except:
+            raise serializers.ValidationError("Please enter data related to costs")
+
+        saved_cost=instance.costs
+
+        instance.admit_date=validated_data.get('admit_date', instance.admit_date)
+        instance.symptomps=validated_data.get('symptomps', instance.symptomps)
+        instance.department=validated_data.get('department', instance.department)
+        instance.release_date=validated_data.get('release_date', instance.release_date)
+        instance.assigned_doctor=validated_data.get('assigned_doctor', instance.assigned_doctor)
+
+        instance.save()
+
+        saved_cost.room_charge= updpated_cost.get('room_charge', saved_cost.room_charge)
+        saved_cost.medicine_cost= updpated_cost.get('medicine_cost', saved_cost.medicine_cost)
+        saved_cost.doctor_fee= updpated_cost.get('doctor_fee', saved_cost.doctor_fee)
+        saved_cost.other_charge= updpated_cost.get('other_charge', saved_cost.other_charge)
+        saved_cost.save()
 
         return instance
     

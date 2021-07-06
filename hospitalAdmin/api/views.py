@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import serializers, status
@@ -17,7 +18,8 @@ from . serializers import (doctorAccountSerializerAdmin,
                            appointmentSerializerAdmin,
                             patientRegistrationSerializerAdmin,
                             patientRegistrationProfileSerializerAdmin,
-                            patientAccountSerializerAdmin)
+                            patientAccountSerializerAdmin,
+                            patientHistorySerializerAdmin)
 from doctor.models import doctor
 
 
@@ -322,3 +324,56 @@ class patientAccountViewAdmin(APIView):
         saved_user = self.get_object(pk)
         saved_user.delete()
         return Response({"message": "User with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
+
+
+class patientHistoryViewAdmin(APIView):
+    """API endpoint for getiing info of all/particular patient's history,
+     update/delete patient's history info
+     - only accessible by Admin"""
+
+    permission_classes = [IsAdmin]
+    
+    
+    def get(self, request, pk, hid=None, format=None):
+        user_patient = get_object_or_404(User,pk=pk).patient
+        if hid:
+            try:
+                history=patient_history.objects.get(id=hid)
+            except patient_history.DoesNotExist:
+                raise Http404
+            if history.patient==user_patient:
+                serializer = patientHistorySerializerAdmin(history)
+                return Response({'patient_history': serializer.data}, status=status.HTTP_200_OK)
+            return Response({"message: This history id `{}` does not belong to the user".format(hid)}, status=status.HTTP_404_NOT_FOUND)
+
+        
+        patient_historys=user_patient.patient_history_set.all()
+        serializer = patientHistorySerializerAdmin(patient_historys, many=True)
+        return Response({'patient_history': serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk, hid):
+        user_patient = get_object_or_404(User,pk=pk).patient
+        try:
+            history=patient_history.objects.get(id=hid)
+        except patient_history.DoesNotExist:
+            raise Http404
+        if history.patient==user_patient:
+            serializer = patientHistorySerializerAdmin(instance=history,data=request.data.get('patient_history'), partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'patient_history': serializer.data}, status=status.HTTP_200_OK)
+            return Response({'patient_history': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message: This history id `{}` does not belong to the user".format(hid)}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk, hid):
+        user_patient = get_object_or_404(User,pk=pk).patient
+        try:
+            history=patient_history.objects.get(id=hid)
+        except patient_history.DoesNotExist:
+            raise Http404
+        if history.patient==user_patient:
+            history.delete()
+            return Response({"message": "History with id `{}` has been deleted.".format(hid)}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message: This history id `{}` does not belong to the user".format(hid)}, status=status.HTTP_404_NOT_FOUND)
+
+
