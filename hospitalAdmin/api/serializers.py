@@ -171,7 +171,7 @@ class appointmentSerializerAdmin(serializers.Serializer):
         instance.appointment_date=validated_data.get(' appointment_date', instance.appointment_date)
         instance.appointment_time=validated_data.get('appointment_time', instance.appointment_time)
         instance.status=validated_data.get('status', instance.status)
-        instance.patient_history=validated_data.get('patient_history', instance.patient_hitory)
+        instance.patient_history=validated_data.get('patient_history', instance.patient_history)
         instance.doctor=validated_data.get('doctor', instance.doctor)
         instance.save()
 
