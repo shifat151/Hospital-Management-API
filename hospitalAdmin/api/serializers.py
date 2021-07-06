@@ -5,6 +5,7 @@ from rest_framework import serializers
 from account.models import User
 from doctor.models import doctor
 from django.contrib.auth.models import Group
+from patient.models import patient
 
 class doctorRegistrationSerializerAdmin(serializers.Serializer):
 
@@ -132,8 +133,8 @@ class doctorAccountSerializerAdmin(serializers.Serializer):
 
         profile_data=instance.doctor
 
-        instance.first_name=validated_data.get('department', instance.first_name)
-        instance.last_name=validated_data.get('address', instance.last_name)
+        instance.first_name=validated_data.get('first_name', instance.first_name)
+        instance.last_name=validated_data.get('last_name', instance.last_name)
         instance.status=validated_data.get('status', instance.status)
         instance.save()
 
@@ -177,3 +178,117 @@ class appointmentSerializerAdmin(serializers.Serializer):
 
 
         return instance
+
+
+
+
+class patientRegistrationSerializerAdmin(serializers.Serializer):
+
+    username=serializers.CharField(label='Username:')
+    first_name=serializers.CharField(label='First name:')
+    last_name=serializers.CharField(label='Last name:', required=False)
+    password = serializers.CharField(label='Password:',style={'input_type': 'password'}, write_only=True,min_length=8,
+    help_text="Your password must contain at least 8 characters and should not be entirely numeric."
+    )
+    password2=serializers.CharField(label='Confirm password:',style={'input_type': 'password'},  write_only=True)
+    
+
+    
+    def validate_username(self, username):
+        username_exists=User.objects.filter(username__iexact=username)
+        if username_exists:
+            raise serializers.ValidationError({'username':'This username already exists'})
+        return username
+
+        
+    def validate_password(self, password):
+        if password.isdigit():
+            raise serializers.ValidationError('Your password should contain letters!')
+        return password  
+
+ 
+
+    def validate(self, data):
+        password=data.get('password')
+        password2=data.pop('password2')
+        if password != password2:
+            raise serializers.ValidationError({'password':'password must match'})
+        return data
+
+
+    def create(self, validated_data):
+        user= User.objects.create(
+                username=validated_data['username'],
+                first_name=validated_data['first_name'],
+                last_name=validated_data['last_name'],
+                status=True
+            )
+        user.set_password(validated_data['password'])
+        user.save()
+        group_patient, created = Group.objects.get_or_create(name='patient')
+        group_patient.user_set.add(user)
+        return user
+
+
+class patientRegistrationProfileSerializerAdmin(serializers.Serializer):
+    age=serializers.DecimalField(label="Age:", max_digits=4,decimal_places=1)
+    address= serializers.CharField(label="Address:")
+    mobile=serializers.CharField(label="Mobile Number:", max_length=20)
+
+
+    def validate_mobile(self, mobile):
+        if mobile.isdigit()==False:
+            raise serializers.ValidationError('Please Enter a valid mobile number!')
+        return mobile
+    
+    def create(self, validated_data):
+        new_patient= patient.objects.create(
+            age=validated_data['age'],
+            address=validated_data['address'],
+            mobile=validated_data['mobile'],
+            user=validated_data['user']
+        )
+        return new_patient
+
+
+
+class patientProfileSerializerAdmin(serializers.Serializer):
+    age=serializers.DecimalField(label="Age:", max_digits=4,decimal_places=1)
+    address= serializers.CharField(label="Address:")
+    mobile=serializers.CharField(label="Mobile Number:", max_length=20)
+
+
+    def validate_mobile(self, mobile):
+        if mobile.isdigit()==False:
+            raise serializers.ValidationError('Please Enter a valid mobile number!')
+        return mobile
+
+class patientAccountSerializerAdmin(serializers.Serializer):
+    id=serializers.UUIDField(read_only=True)
+    username=serializers.CharField(label='Username:', read_only=True)
+    first_name=serializers.CharField(label='First name:')
+    last_name=serializers.CharField(label='Last name:', required=False)
+    status=serializers.BooleanField(label='status')
+    patient=patientProfileSerializerAdmin(label='User')
+
+
+    def update(self, instance, validated_data):
+        try:
+            patient_profile=validated_data.pop('patient')
+        except:
+            raise serializers.ValidationError("Please enter data related to patient's profile")
+
+        profile_data=instance.patient
+
+        instance.first_name=validated_data.get('first_name', instance.first_name)
+        instance.last_name=validated_data.get('last_name', instance.last_name)
+        instance.status=validated_data.get('status', instance.status)
+        instance.save()
+
+        profile_data.age=patient_profile.get('age', profile_data.age)
+        profile_data.address=patient_profile.get('address', profile_data.address)
+        profile_data.mobile=patient_profile.get('mobile', profile_data.mobile)
+        profile_data.save()
+
+        return instance
+    

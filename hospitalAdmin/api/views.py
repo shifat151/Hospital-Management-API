@@ -14,7 +14,10 @@ from account.models import User
 from . serializers import (doctorAccountSerializerAdmin,
                            doctorRegistrationSerializerAdmin,
                            doctorRegistrationProfileSerializerAdmin,
-                           appointmentSerializerAdmin)
+                           appointmentSerializerAdmin,
+                            patientRegistrationSerializerAdmin,
+                            patientRegistrationProfileSerializerAdmin,
+                            patientAccountSerializerAdmin)
 from doctor.models import doctor
 
 
@@ -163,7 +166,7 @@ class approveDoctorViewAdmin(APIView):
 
 class appointmentmentViewAdmin(APIView):
 
-    """API endpoint for getiing info of all/particular appointment,
+    """API endpoint for getting info of all/particular appointment,
      update/delete appointment - only accessible by Admin"""
 
     permission_classes = [IsAdmin]
@@ -171,7 +174,7 @@ class appointmentmentViewAdmin(APIView):
     def get_object(self, pk):
         try:
             return Appointment.objects.get(pk=pk)
-        except User.DoesNotExist:
+        except Appointment.DoesNotExist:
             raise Http404
 
     def get(self, request, pk=None, format=None):
@@ -180,7 +183,7 @@ class appointmentmentViewAdmin(APIView):
             appointment_detail = self.get_object(pk)
             serializer = appointmentSerializerAdmin(appointment_detail)
             return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
-        all_appointment = Appointment.objects.all()
+        all_appointment = Appointment.objects.filter(status=True)
         serializer = appointmentSerializerAdmin(all_appointment, many=True)
         return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
 
@@ -215,10 +218,15 @@ class appointmentmentViewAdmin(APIView):
 
 
 class approveAppointmentViewAdmin(APIView):
+    """API endpoint for getting info of all/particular unapproved appointment,
+     update/delete  unapproved appointment - only accessible by Admin"""
+
+    permission_classes = [IsAdmin]
+
     def get_object(self, pk):
         try:
             return Appointment.objects.get(pk=pk)
-        except User.DoesNotExist:
+        except Appointment.DoesNotExist:
             raise Http404
     
     def get(self, request, pk=None, format=None):
@@ -246,3 +254,71 @@ class approveAppointmentViewAdmin(APIView):
         saved_appointment.delete()
         return Response({"message": "Appointment with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
 
+
+class patientRegistrationViewAdmin(APIView):
+    """API endpoint for creating patients account- only accessible by Admin"""
+
+    permission_classes = [IsAdmin]
+
+    def post(self, request, format=None):
+        registrationSerializer = patientRegistrationSerializerAdmin(
+            data=request.data.get('user_data'))
+        profileSerializer = patientRegistrationProfileSerializerAdmin(
+            data=request.data.get('profile_data'))
+        checkregistration = registrationSerializer.is_valid()
+        checkprofile = profileSerializer.is_valid()
+        if checkregistration and checkprofile:
+            patient = registrationSerializer.save()
+            profileSerializer.save(user=patient)
+            return Response({
+                'user_data': registrationSerializer.data,
+                'profile_data': profileSerializer.data
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response({
+                'user_data': registrationSerializer.errors,
+                'profile_data': profileSerializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class patientAccountViewAdmin(APIView):
+
+    """API endpoint for getiing info of all/particular patient,
+     update/delete patient's info
+     - only accessible by Admin"""
+
+    permission_classes = [IsAdmin]
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk=None, format=None):
+
+        if pk:
+            patient_detail = self.get_object(pk)
+            serializer = patientAccountSerializerAdmin(patient_detail)
+            return Response({'patients': serializer.data}, status=status.HTTP_200_OK)
+        all_patient = User.objects.filter(groups=2, status=True)
+        serializer = patientAccountSerializerAdmin(all_patient, many=True)
+        return Response({'patients': serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        saved_user = self.get_object(pk)
+        serializer = patientAccountSerializerAdmin(
+            instance=saved_user, data=request.data.get('patients'), partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'patients': serializer.data}, status=status.HTTP_200_OK)
+        return Response({
+            'patients': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        saved_user = self.get_object(pk)
+        saved_user.delete()
+        return Response({"message": "User with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
