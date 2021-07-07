@@ -12,17 +12,42 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import BasePermission
 
-from patient.models import patient
+from patient.models import patient, Appointment
 
 
 
 
 class IsPatient(BasePermission):
+    """custom Permission class for Patient"""
+
     def has_permission(self, request, view):
         return bool(request.user and request.user.groups.filter(name='patient').exists())
         
+class CustomAuthToken(ObtainAuthToken):
+
+    """This class returns custom Authentication token only for patient"""
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        if user.status==False:
+            return Response(
+                {
+                    'message': "Your account is not approved by admin yet!"
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key
+        },status=status.HTTP_200_OK)
+
 
 class registrationView(APIView):
+    """"API endpoint for Patient Registration"""
+
     permission_classes = []
 
     def post(self, request, format=None):
@@ -46,27 +71,9 @@ class registrationView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomAuthToken(ObtainAuthToken):
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        if user.status==False:
-            return Response(
-                {
-                    'message': "Your account is not approved by admin yet!"
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key
-        },status=status.HTTP_200_OK)
-
 
 class patientProfileView(APIView):
+    """"API endpoint for Patient profile view/update-- Only accessble by patients"""
     permission_classes = [IsPatient]
 
 
@@ -98,6 +105,8 @@ class patientProfileView(APIView):
             
 
 class patientHistoryView(APIView):
+
+    """"API endpoint for Patient history and costs view- Only accessble by patients"""
     permission_classes = [IsPatient]
 
     def get(self, request, format=None):
@@ -106,4 +115,7 @@ class patientHistoryView(APIView):
         history = patient_history.objects.filter(patient=user_patient)
         historySerializer=patientHistorySerializer(history, many=True)
         return Response(historySerializer.data, status=status.HTTP_200_OK)
+
+
+
 
