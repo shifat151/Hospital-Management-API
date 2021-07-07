@@ -26,7 +26,7 @@ class PatientHistoryInline(admin.StackedInline):
     
 
 class PatientAdmin(admin.ModelAdmin):
-    list_display=('user','age','address','mobile','status')
+    list_display=('user','age','address','mobile')
     inlines=[PatientHistoryInline]
 
 admin.site.register(patient, PatientAdmin)

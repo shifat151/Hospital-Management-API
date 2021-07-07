@@ -127,7 +127,7 @@ class doctorAccountViewAdmin(APIView):
 
 
 class approveDoctorViewAdmin(APIView):
-    """API endpoint for getiing new doctor approval request, update approval  request.
+    """API endpoint for getting new doctor approval request, update and delete approval  request.
      - only accessible by Admin"""
 
     permission_classes = [IsAdmin]
@@ -166,7 +166,47 @@ class approveDoctorViewAdmin(APIView):
 
 
 
-class appointmentmentViewAdmin(APIView):
+class approvePatientViewAdmin(APIView):
+    """API endpoint for getting new doctor patient request,
+     update and delete approval the requests.- only accessible by Admin"""
+
+    permission_classes = [IsAdmin]
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk=None, format=None):
+
+        if pk:
+            doctor_detail = self.get_object(pk)
+            serializer = patientAccountSerializerAdmin(doctor_detail)
+            return Response({'patients': serializer.data}, status=status.HTTP_200_OK)
+        all_patient = User.objects.filter(groups=2, status=False)
+        serializer = patientAccountSerializerAdmin(all_patient, many=True)
+        return Response({'patients': serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        saved_user = self.get_object(pk)
+        serializer = patientAccountSerializerAdmin(
+            instance=saved_user, data=request.data.get('patients'), partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'patients': serializer.data}, status=status.HTTP_200_OK)
+        return Response({
+            'patients': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        saved_user = self.get_object(pk)
+        saved_user.delete()
+        return Response({"message": "Patient approval request with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+class appointmentViewAdmin(APIView):
 
     """API endpoint for getting info of all/particular appointment,
      update/delete appointment - only accessible by Admin"""
@@ -327,7 +367,7 @@ class patientAccountViewAdmin(APIView):
 
 
 class patientHistoryViewAdmin(APIView):
-    """API endpoint for getiing info of all/particular patient's history,
+    """API endpoint for getting info of all/particular patient's history,
      update/delete patient's history info
      - only accessible by Admin"""
 
