@@ -259,42 +259,42 @@ class appointmentViewAdmin(APIView):
 
 
 
-# class approveAppointmentViewAdmin(APIView):
-#     """API endpoint for getting info of all/particular unapproved appointment,
-#      update/delete  unapproved appointment - only accessible by Admin"""
+class approveAppointmentViewAdmin(APIView):
+    """API endpoint for getting info of all/particular unapproved appointment,
+     update/delete  unapproved appointment - only accessible by Admin"""
 
-#     permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin]
 
-#     def get_object(self, pk):
-#         try:
-#             return Appointment.objects.get(pk=pk)
-#         except Appointment.DoesNotExist:
-#             raise Http404
+    def get_object(self, pk):
+        try:
+            return Appointment.objects.get(pk=pk)
+        except Appointment.DoesNotExist:
+            raise Http404
     
-#     def get(self, request, pk=None, format=None):
+    def get(self, request, pk=None, format=None):
 
-#         if pk:
-#             appointment_detail = self.get_object(pk)
-#             serializer = appointmentSerializerAdmin(appointment_detail)
-#             return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
-#         all_appointment = Appointment.objects.filter(status=False)
-#         serializer = appointmentSerializerAdmin(all_appointment, many=True)
-#         return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
+        if pk:
+            appointment_detail = self.get_object(pk)
+            serializer = appointmentSerializerAdmin(appointment_detail)
+            return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
+        all_appointment = Appointment.objects.filter(status=False)
+        serializer = appointmentSerializerAdmin(all_appointment, many=True)
+        return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
 
-#     def put(self, request, pk):
-#             saved_appointment= self.get_object(pk)
-#             serializer = appointmentSerializerAdmin(
-#                 instance=saved_appointment, data=request.data.get('appointments'), partial=True)
-#             if serializer.is_valid():
-#                 serializer.save()
-#                 return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
-#             return Response({
-#                 'appointments': serializer.errors
-#             }, status=status.HTTP_400_BAD_REQUEST)
-#     def delete(self, request, pk):
-#         saved_appointment= self.get_object(pk)
-#         saved_appointment.delete()
-#         return Response({"message": "Appointment with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
+    def put(self, request, pk):
+            saved_appointment= self.get_object(pk)
+            serializer = appointmentSerializerAdmin(
+                instance=saved_appointment, data=request.data.get('appointments'), partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'appointments': serializer.data}, status=status.HTTP_200_OK)
+            return Response({
+                'appointments': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk):
+        saved_appointment= self.get_object(pk)
+        saved_appointment.delete()
+        return Response({"message": "Appointment with id `{}` has been deleted.".format(pk)}, status=status.HTTP_204_NO_CONTENT)
 
 
 class patientRegistrationViewAdmin(APIView):

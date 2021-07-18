@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from .serializers import (patientRegistrationSerializer,
  patientProfileSerializer,
-  patientHistorySerializer)
+  patientHistorySerializer,
+  appointmentSerializerPatient)
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -115,6 +116,33 @@ class patientHistoryView(APIView):
         history = patient_history.objects.filter(patient=user_patient)
         historySerializer=patientHistorySerializer(history, many=True)
         return Response(historySerializer.data, status=status.HTTP_200_OK)
+
+
+class appointmentViewPatient(APIView):
+    """"API endpoint for getting appointments details, creating appointment"""
+    permission_classes = [IsPatient]
+ 
+
+    def get(self, request,pk=None, format=None):
+        user = request.user
+        user_patient = patient.objects.filter(user=user).get()
+        history = patient_history.objects.filter(patient=user_patient).latest('admit_date')
+        appointment=Appointment.objects.filter(status=True,patient_history=history)
+        historySerializer=appointmentSerializerPatient(appointment, many=True)
+        return Response(historySerializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, format=None):
+        user = request.user
+        user_patient = patient.objects.filter(user=user).get()
+        history = patient_history.objects.filter(patient=user_patient).latest('admit_date')
+        serializer = appointmentSerializerPatient(
+            data=request.data)
+        if serializer.is_valid():
+            serializer.save(patient_history=history)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response( serializer.errors
+        , status=status.HTTP_400_BAD_REQUEST)
+
 
 
 

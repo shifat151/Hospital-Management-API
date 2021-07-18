@@ -2,7 +2,7 @@ from django.db.models import fields
 from django.db.models.query import QuerySet
 from rest_framework import serializers
 from account.models import User
-from patient.models import patient, patient_history
+from patient.models import patient, patient_history, Appointment
 from django.contrib.auth.models import Group
 from doctor.models import doctor
 
@@ -92,12 +92,24 @@ class patientCostSerializer(serializers.Serializer):
     total_cost=serializers.CharField(label="Total Cost:")
 
 
+class appointmentSerializerPatient(serializers.Serializer):
+    id=serializers.IntegerField(read_only=True)
+    appointment_date = serializers.DateField(label='Appointment date')
+    appointment_time = serializers.TimeField(label='Appointement time')
+    status = serializers.BooleanField(required=False, read_only=True)
+    doctor = serializers.PrimaryKeyRelatedField(queryset=doctor.objects.all(), required=False)
 
-class patientAppointmentSerializer(serializers.Serializer):
-    appointment_date=serializers.DateField(label="Appointment Date:",)
-    appointment_time=serializers.TimeField(label="Appointment Time:")
-    status=serializers.BooleanField(label="Appointment Status:")
-    doctor=serializers.StringRelatedField(label='Doctor:')
+
+    def create(self, validated_data):
+        new_appointment= Appointment.objects.create(
+            appointment_date=validated_data['appointment_date'],
+            appointment_time=validated_data['appointment_time'],
+            status=False,
+            patient_history=validated_data['patient_history'],
+            doctor=validated_data['doctor']
+        )
+        return new_appointment
+
 
 
 class patientHistorySerializer(serializers.Serializer):
@@ -119,8 +131,13 @@ class patientHistorySerializer(serializers.Serializer):
     #required=False; if this field is not required to be present during deserialization.
     release_date=serializers.DateField(label="Release Date:", required=False)
     assigned_doctor=serializers.StringRelatedField(label='Assigned Doctor:')
-    patient_appointments=patientAppointmentSerializer(label="Appointments",many=True)
+    patient_appointments=appointmentSerializerPatient(label="Appointments",many=True)
     costs=patientCostSerializer()
+
+
+
+    
+
 
     
 

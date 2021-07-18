@@ -7,7 +7,9 @@ appointmentViewAdmin,
 patientRegistrationViewAdmin,
 patientAccountViewAdmin,
 patientHistoryViewAdmin,
-approvePatientViewAdmin)
+approvePatientViewAdmin,
+approveAppointmentViewAdmin,
+)
 
 from django.urls import path
 
@@ -27,9 +29,9 @@ urlpatterns = [
     path('approve/patients/', approvePatientViewAdmin.as_view(), name='api_patients_approve_admin'),
     path('approve/patient/<uuid:pk>/', approvePatientViewAdmin.as_view(), name='api_patient_detail_approve_admin'),
 
-    #Approve Appointment
-    # path('approve/appointments/', approveAppointmentViewAdmin.as_view(), name='api_appointment_approve_admin'),
-    # path('approve/appointment/<int:pk>', approveAppointmentViewAdmin.as_view(), name='api_appointment_approve_detail_admin'),
+    # Approve Appointment
+    path('approve/appointments/', approveAppointmentViewAdmin.as_view(), name='api_appointment_approve_admin'),
+    path('approve/appointment/<int:pk>', approveAppointmentViewAdmin.as_view(), name='api_appointment_approve_detail_admin'),
 
     #Doctor management
     path('doctor/registration/', docregistrationViewAdmin.as_view(), name='api_doctors_registration_admin'),

@@ -153,7 +153,7 @@ class appointmentSerializerAdmin(serializers.Serializer):
     appointment_time = serializers.TimeField(label='Appointement time')
     status = serializers.BooleanField(required=False)
     patient_history = serializers.PrimaryKeyRelatedField(queryset=patient_history.objects.all())
-    doctor = serializers.PrimaryKeyRelatedField(queryset=doctor.objects.all(), required=False)
+    doctor = serializers.PrimaryKeyRelatedField(queryset=doctor.objects.all())
 
 
     def create(self, validated_data):
