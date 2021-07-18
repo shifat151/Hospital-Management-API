@@ -25,7 +25,8 @@ For authenticating user, Django REST Framework custom token authentication is us
 - api/patient/registration/
 - api/patient/login/
 - api/patient/profile/
-- /api/patient/history/
+- api/patient/history/
+- api/patient/appointment/
 
 ### 2. Admin:
 - api/admin/login/
@@ -43,6 +44,7 @@ For authenticating user, Django REST Framework custom token authentication is us
 - api/admin/patient/:uuid/history/:id/
 - api/admin/appointments/
 - api/admin/appointment/:id/
+- admin/approve/appointments/
 
 
 ## Sample API Request and Response
@@ -105,7 +107,7 @@ response body:
 ```
 **GET api/doctor/profile/**
 
-Details: APi endpoint for getting doctor profile details. Token authentication required
+Details: API endpoint for getting doctor profile details. Token authentication required
 
 response body:
 
@@ -126,7 +128,7 @@ response body:
 
 **PUT api/doctor/profile/**
 
-Details: APi endpoint for updating doctor profile . Token authentication required
+Details: API endpoint for updating doctor profile . Token authentication required
 
 request:
 ```json
@@ -151,7 +153,7 @@ response:
 
 **GET api/doctor/appointments/**
 
-Details: APi endpoint for getting details of all appointments .Appointment need to be approved by admin. Token authentication required
+Details: API endpoint for getting details of all appointments .Appointment need to be approved by admin. Token authentication required
 
 response:
 ```json
@@ -229,7 +231,7 @@ request:
 
 **GET api/patient/profile/**
 
-Details: APi endpoint for getting details of patient profile.Token authentication required.
+Details: API endpoint for getting details of patient profile.Token authentication required.
 
 response:
 ```json
@@ -248,7 +250,7 @@ response:
 ```
 **PUT api/patient/profile/**
 
-Details: APi endpoint for updating details of a patient profile.Token authentication required.
+Details: API endpoint for updating details of a patient profile.Token authentication required.
 
 request:
 ```json
@@ -272,9 +274,9 @@ response:
 }
 ```
 
-**GET /api/patient/history/**
+**GET api/patient/history/**
 
-Details: APi endpoint for all history of a patient .Token authentication required.
+Details: API endpoint for all history of a patient .Token authentication required.
 
 response:
 ```json
@@ -295,6 +297,53 @@ response:
         }
     }
 ]
+```
+**GET api/patient/appointment/**
+
+Details: API endpoint for getting all latest approved appointments. Token authentication required.
+
+response:
+```json
+[
+    {
+        "id": 14,
+        "appointment_date": "2021-07-18",
+        "appointment_time": "16:33:27",
+        "status": true,
+        "doctor": 5
+    },
+    {
+        "id": 16,
+        "appointment_date": "2021-07-18",
+        "appointment_time": "16:33:27",
+        "status": true,
+        "doctor": 5
+    }
+]
+```
+
+**POST api/patient/appointment/**
+
+Details: API endpoint for creating an appointment request. Token authentication required.
+
+request:
+```json
+{
+        "appointment_date": "2021-07-18",
+        "appointment_time": "16:33:27",
+        "doctor": 5
+}
+```
+
+response:
+```json
+{
+    "id": 18,
+    "appointment_date": "2021-07-18",
+    "appointment_time": "16:33:27",
+    "status": false,
+    "doctor": 5
+}
 ```
 
 **POST api/admin/login/**
@@ -991,7 +1040,7 @@ response:
 
 **POST api/admin/appointments/**
 
-Details: API endpoint for creating  an appointment. Token authentication required.
+Details: API endpoint for creating an appointment. Token authentication required.
 
 request:
 ```json
@@ -1009,7 +1058,7 @@ request:
 
 Details: API endpoint for getting all appointments. Token authentication required.
 
-request:
+response:
 ```json
 {
     "appointments": [
@@ -1043,7 +1092,7 @@ response:
 ```
 **PUT api/admin/appointment/:id/**
 
-Details: API endpoint for updating detail of am appointment. Token authentication required.
+Details: API endpoint for updating detail of an appointment. Token authentication required.
 
 request:
 ```json
@@ -1079,6 +1128,103 @@ response:
 ```json
 {
     "message": "Appointment with id `13` has been deleted."
+}
+```
+
+
+**GET api/admin/approve/appointments/**
+
+Details: API endpoint for getting all appointment requests. Token authentication required.
+
+response:
+```json
+{
+    "appointments": [
+        {
+            "id": 15,
+            "appointment_date": "2021-07-24",
+            "appointment_time": "06:00:00",
+            "status": false,
+            "patient_history": 9,
+            "doctor": 8
+        },
+        {
+            "id": 17,
+            "appointment_date": "2021-07-18",
+            "appointment_time": "16:33:27",
+            "status": false,
+            "patient_history": 9,
+            "doctor": 5
+        },
+        {
+            "id": 18,
+            "appointment_date": "2021-07-18",
+            "appointment_time": "16:33:27",
+            "status": false,
+            "patient_history": 9,
+            "doctor": 5
+        }
+    ]
+}
+```
+
+**GET api/admin/approve/appointments/15**
+
+Details: API endpoint for getting an appointment detail request. Token authentication required.
+
+response:
+```json
+{
+    "appointments": {
+        "id": 15,
+        "appointment_date": "2021-07-24",
+        "appointment_time": "06:00:00",
+        "status": false,
+        "patient_history": 9,
+        "doctor": 8
+    }
+}
+```
+
+**PUT api/admin/approve/appointments/15**
+
+Details: API endpoint for updating an appointment request. Token authentication required.
+
+request:
+```json
+{
+    "appointments": {
+        "appointment_date": "2021-07-24",
+        "appointment_time": "06:00:00",
+        "status": true,
+        "patient_history": 9,
+        "doctor": 8
+    }
+}
+```
+
+response:
+```json
+{
+    "appointments": {
+        "id": 15,
+        "appointment_date": "2021-07-24",
+        "appointment_time": "06:00:00",
+        "status": true,
+        "patient_history": 9,
+        "doctor": 8
+    }
+}
+```
+
+**DELETE api/admin/appointment/:id/**
+
+Details:API endpoint for deleting an appointment request. Token authentication required.
+
+response:
+```json
+{
+    "message": "Appointment with id `15` has been deleted."
 }
 ```
 
