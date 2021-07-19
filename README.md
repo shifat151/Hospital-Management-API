@@ -44,7 +44,7 @@ For authenticating user, Django REST Framework custom token authentication is us
 - api/admin/patient/:uuid/history/:id/
 - api/admin/appointments/
 - api/admin/appointment/:id/
-- admin/approve/appointments/
+- api/admin/approve/appointments/
 
 
 ## Sample API Request and Response
