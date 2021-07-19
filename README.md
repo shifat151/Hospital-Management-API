@@ -45,6 +45,7 @@ For authenticating user, Django REST Framework custom token authentication is us
 - api/admin/appointments/
 - api/admin/appointment/:id/
 - api/admin/approve/appointments/
+- api/admin/approve/appointments/:id/
 
 
 ## Sample API Request and Response
@@ -86,7 +87,7 @@ response body:
 }
 ```
 
-------------
+
 
 **POST api/doctor/login/**
 
@@ -173,6 +174,9 @@ response:
     }
 ]
 ```
+
+------------
+
 
 **POST api/patient/registration/**
 
@@ -345,6 +349,9 @@ response:
     "doctor": 5
 }
 ```
+
+------------
+
 
 **POST api/admin/login/**
 
@@ -683,7 +690,7 @@ response:
 
 **GET api/admin/doctor/:uuid/**
 
-Details: API endpoint for getting Specific doctor's profile detail.Only approved doctor will be available. Token authentication required.
+Details: API endpoint for getting specific doctor's profile detail.Only approved doctor will be available. Token authentication required.
 
 response:
 ```json
@@ -706,7 +713,7 @@ response:
 
 **GET api/admin/doctor/:uuid/**
 
-Details: API endpoint for updating Specific doctor's profile. Token authentication required.
+Details: API endpoint for updating specific doctor's profile. Token authentication required.
 
 request:
 ```json
@@ -919,7 +926,7 @@ response:
 ```
 **DELETE api/admin/patient/:uuid/**
 
-Details: API endpoint for updating detail a patient account.Token authentication required.
+Details: API endpoint for updating detail of a patient account.Token authentication required.
 
 response:
 ```json
@@ -1168,7 +1175,7 @@ response:
 }
 ```
 
-**GET api/admin/approve/appointments/15**
+**GET api/admin/approve/appointments/:id**
 
 Details: API endpoint for getting an appointment detail request. Token authentication required.
 
@@ -1186,7 +1193,7 @@ response:
 }
 ```
 
-**PUT api/admin/approve/appointments/15**
+**PUT api/admin/approve/appointments/:id**
 
 Details: API endpoint for updating an appointment request. Token authentication required.
 
@@ -1227,32 +1234,4 @@ response:
     "message": "Appointment with id `15` has been deleted."
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
