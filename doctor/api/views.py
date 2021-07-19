@@ -24,6 +24,7 @@ class CustomAuthToken(ObtainAuthToken):
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+        account_approval = user.groups.filter(name='doctor').exists()
         if user.status==False:
             return Response(
                 {
@@ -31,10 +32,18 @@ class CustomAuthToken(ObtainAuthToken):
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key
-        },status=status.HTTP_200_OK)
+        elif account_approval==False:
+            return Response(
+                {
+                    'message': "You are not authorised to login as a doctor"
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+        else:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': token.key
+            },status=status.HTTP_200_OK)
 
 class registrationView(APIView):
 
