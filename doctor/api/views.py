@@ -111,6 +111,6 @@ class doctorAppointmentView(APIView):
     def get(self, request, format=None):
         user = request.user
         user_doctor = doctor.objects.filter(user=user).get()
-        appointments=Appointment.objects.filter(doctor=user_doctor, status=True)
+        appointments=Appointment.objects.filter(doctor=user_doctor, status=True).order_by('appointment_date', 'appointment_time')
         appointmentSerializer=doctorAppointmentSerializer(appointments, many=True)
         return Response(appointmentSerializer.data, status=status.HTTP_200_OK)
