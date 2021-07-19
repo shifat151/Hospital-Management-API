@@ -1,7 +1,7 @@
 
 from rest_framework.exceptions import ValidationError
 from patient.models import (Appointment,
-patient_history)
+                            patient_history)
 from rest_framework import serializers
 from account.models import User
 from doctor.models import doctor

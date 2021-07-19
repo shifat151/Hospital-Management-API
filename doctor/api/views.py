@@ -7,7 +7,7 @@ from rest_framework import serializers, status
 from doctor.models import doctor
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import BasePermission
 from patient.models import Appointment
 
 class IsDoctor(BasePermission):
@@ -17,7 +17,7 @@ class IsDoctor(BasePermission):
 
 class CustomAuthToken(ObtainAuthToken):
 
-    """This class returns custom Authentication token only for """
+    """This class returns custom Authentication token only for Doctor"""
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,

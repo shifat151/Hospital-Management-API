@@ -2,15 +2,13 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import serializers, status
-from patient.models import (patient,
-                            patient_history,
+from rest_framework import status
+from patient.models import (patient_history,
                             Appointment)
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import BasePermission
 from django.contrib.auth.models import Group
-from patient.models import Appointment
 from account.models import User
 from . serializers import (doctorAccountSerializerAdmin,
                            doctorRegistrationSerializerAdmin,
